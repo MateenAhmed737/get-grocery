@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { AiFillEye, AiFillFileImage, AiFillFolderOpen } from "react-icons/ai";
 import { TbDiscountCheckFilled } from "react-icons/tb";
-import { CgUnblock } from "react-icons/cg";
+import { CgDetailsMore, CgUnblock } from "react-icons/cg";
 import { MdBlock, MdDelete, MdModeEdit } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { BsBoxArrowInUpRight } from "react-icons/bs";
 
 const Actions = ({
   id,
@@ -19,6 +20,7 @@ const Actions = ({
   blockUrl,
   deleteUrl,
 }) => {
+  const navigate = useNavigate();
   const [blockUser, setBlockUser] = useState(
     data?.status?.toLowerCase() === "inactive"
   );
@@ -125,6 +127,17 @@ const Actions = ({
             className="font-medium text-gray-600 hover:text-gray-800"
           >
             <AiFillFileImage />
+          </button>
+        </td>
+      );
+    } else if (name === "Details") {
+      element = (
+        <td className="self-center px-6 py-2 pt-4 text-xl text-center">
+          <button
+            onClick={() => navigate("/category/" + data?.id)}
+            className="font-medium text-gray-600 hover:text-gray-800"
+          >
+            <BsBoxArrowInUpRight />
           </button>
         </td>
       );

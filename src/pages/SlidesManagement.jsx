@@ -17,15 +17,7 @@ const template = convertPropsToObject(neededProps);
 const showAllSlides = `${base_url}/fetch_slider.php`;
 const createUrl = `${base_url}/generate_slider.php`;
 const editUrl = `${base_url}/edit_slider.php`;
-
-const dropdownFields = [
-  {
-    key: "status",
-    title: "status",
-    arr: ["Active", "InActive"],
-    getOption: (val) => val,
-  },
-];
+const getProducts = `${base_url}/get_products.php`;
 
 const SlidesManagement = () => {
   const { user } = useContext(AppContext);
@@ -33,6 +25,7 @@ const SlidesManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [, setSearchText] = useState("");
   const [reload, setReload] = useState(false);
+  const [products, setProducts] = useState(null);
   const [paginatedData, setPaginatedData] = useState({
     items: [],
     curItems: [],
@@ -47,15 +40,13 @@ const SlidesManagement = () => {
     } else {
       setPaginatedData((prev) => ({
         ...prev,
-        items: data.filter((item) =>
-          Object.keys(template).some(
-            (key) =>
-              item?.type?.toLowerCase()?.includes(str?.toLowerCase()) ||
-              item?.link?.toLowerCase()?.includes(str?.toLowerCase()) ||
-              String(item?.product_id)
-                ?.toLowerCase()
-                ?.includes(str?.toLowerCase())
-          )
+        items: data.filter(
+          (item) =>
+            item?.type?.toLowerCase()?.includes(str?.toLowerCase()) ||
+            item?.link?.toLowerCase()?.includes(str?.toLowerCase()) ||
+            String(item?.product_id)
+              ?.toLowerCase()
+              ?.includes(str?.toLowerCase())
         ),
       }));
     }
@@ -66,8 +57,15 @@ const SlidesManagement = () => {
     "product_id",
     "image",
     "type",
-    "link",
   ]);
+
+  const editModalState = {
+    id: "",
+    product_id: "",
+    image: "",
+    type: "",
+    link: "",
+  };
 
   const createCallback = (res) => {
     // const resData = res?.success?.data;
@@ -80,12 +78,13 @@ const SlidesManagement = () => {
   };
 
   const editCallback = (res, state) => {
-    const stateCopy = data?.map((e) =>
-      e.id === state.id ? { ...e, ...state } : e
-    );
+    // const stateCopy = data?.map((e) =>
+    //   e.id === state.id ? { ...e, ...state } : e
+    // );
 
-    setData(stateCopy);
-    setPaginatedData((prev) => ({ ...prev, items: stateCopy }));
+    // setData(stateCopy);
+    // setPaginatedData((prev) => ({ ...prev, items: stateCopy }));
+    setReload(!reload);
   };
 
   const uploadFields = [
@@ -110,6 +109,16 @@ const SlidesManagement = () => {
     },
   ];
 
+  const inputFields = [
+    {
+      key: "type",
+      title: "type",
+      arr: products,
+      getOption: (val) => val?.name?.[0]?.value,
+      getValue: (val) => val?.id,
+    },
+  ];
+
   const props = {
     title: "Slides Management",
     actionCols: ["Edit"],
@@ -128,9 +137,9 @@ const SlidesManagement = () => {
       curLength: paginatedData.items.length,
     },
     createModalProps: {
-      excludeFields: ["created_at", "updated_at", "product_id"],
-      hideFields: ["id"],
-      dropdownFields,
+      excludeFields: ["created_at", "updated_at"],
+      hideFields: ["id", "product_id", "link"],
+      inputFields,
       neededProps,
       uploadFields,
       createUrl,
@@ -141,24 +150,38 @@ const SlidesManagement = () => {
       appendableFields,
     },
     editModalProps: {
-      excludeFields: ["created_at", "updated_at", "product_id"],
-      hideFields: ["id"],
-      dropdownFields,
+      excludeFields: ["created_at", "updated_at"],
+      hideFields: ["id", "product_id", "link"],
+      inputFields,
       uploadFields,
       neededProps,
       editUrl,
       successCallback: editCallback,
-      template: modalState,
+      template: editModalState,
       gridCols: 1,
       token: user?.token,
       appendableFields,
     },
     tableProps: {
-      dollarFields: ["price"],
+      linkFields: ["link"],
     },
   };
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(getProducts);
+        const json = await res.json();
+        console.log("products json =>", json);
+
+        if (json.status) {
+          setProducts(json?.data?.products);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     const formdata = new FormData();
     formdata.append("token", user?.token);
     const requestOptions = {
@@ -181,6 +204,7 @@ const SlidesManagement = () => {
       },
       requestOptions,
     });
+    fetchProducts();
   }, [user, reload]);
 
   return <GeneralPage {...props} />;

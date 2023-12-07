@@ -7,6 +7,7 @@ const Page = ({
   headerStyles = "",
   children,
   enableHeader,
+  enableAccount = true,
 }) => {
   const [toggle, setToggle] = useState(false);
 
@@ -47,7 +48,7 @@ const Page = ({
       {enableHeader && (
         <header className={styles.header}>
           <h1 className={styles.heading}>{title}</h1>
-          <Account toggle={toggle} setToggle={setToggle} />
+          {enableAccount && <Account toggle={toggle} setToggle={setToggle} />}
         </header>
       )}
       {children}

@@ -1,31 +1,29 @@
 import React from "react";
-import { BiSolidPackage } from "react-icons/bi";
-import {
-  BsBuildingsFill,
-  BsFillFileEarmarkCheckFill,
-  BsPersonBadgeFill,
-} from "react-icons/bs";
-import { AiFillDollarCircle } from "react-icons/ai";
+import { BsFillFileEarmarkCheckFill, BsPersonBadgeFill } from "react-icons/bs";
 import {
   FaPersonDigging,
   FaClipboardList,
-  FaMoneyBillTransfer,
   FaFileInvoiceDollar,
 } from "react-icons/fa6";
 import { MdCoPresent } from "react-icons/md";
 import { IoMdBriefcase } from "react-icons/io";
 import { GiSandsOfTime } from "react-icons/gi";
-import { GoHomeFill } from "react-icons/go";
-import { RiSettingsFill } from "react-icons/ri";
 import { PiSlideshowFill } from "react-icons/pi";
+import { BiSolidCategoryAlt } from "react-icons/bi";
 
 // NavLinks
 export const navLinks = [
   {
     icon: <PiSlideshowFill className="-ml-0.5 text-xl" title="Slides" />,
-    id: 3,
+    id: 1,
     path: "/slides-management",
     title: "Slides Management",
+  },
+  {
+    icon: <BiSolidCategoryAlt className="-ml-0.5 text-xl" title="Slides" />,
+    id: 2,
+    path: "/categories",
+    title: "Categories",
   },
   // {
   //   icon: <GoHomeFill className="-ml-0.5 text-xl" title="Invoices" />,

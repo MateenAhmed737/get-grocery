@@ -65,8 +65,9 @@ export const DropdownField = ({
         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
         id={name}
         name={keyName}
+        defaultValue={defaultValue}
       >
-        <option className="text-sm" value="" defaultValue={defaultValue}>
+        <option className="text-sm" value="">
           select {name}
         </option>
         {arr.map((item, indx) => {
@@ -118,5 +119,125 @@ export const UploadField = ({
         required={required}
       />
     </div>
+  );
+};
+
+export const TypeFieldCategories = ({
+  keyName,
+  title = keyName,
+  state,
+  setState,
+  arr,
+  getOption,
+  getValue,
+  onChange,
+  required = false,
+  defaultValue,
+}) => {
+  const name = title.replace(/_/g, " ").toLowerCase();
+
+  const handleChange = onChange
+    ? (e) => onChange(keyName, e.target.value, setState)
+    : (e) => {
+        const value = e.target.value;
+
+        setState((prev) => ({
+          ...prev,
+          [keyName]: value,
+        }));
+      };
+
+  return (
+    <>
+      <div>
+        <label
+          htmlFor={name}
+          className="block mb-1 text-xs font-medium text-gray-900 capitalize"
+        >
+          {name}
+        </label>
+        <select
+          id={name}
+          value={state.type}
+          name={keyName}
+          onChange={handleChange}
+          className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+          required={required}
+        >
+          <option className="text-sm" value="">
+            select {name}
+          </option>
+          <option className="text-sm" value="link">
+            Link
+          </option>
+          <option className="text-sm" value="product">
+            Product
+          </option>
+        </select>
+      </div>
+      {state.type === "link" ? (
+        <div>
+          <label
+            className="block mb-2 text-xs font-medium text-gray-900 capitalize"
+            htmlFor="link"
+          >
+            Link
+          </label>
+          <input
+            className="w-full shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500/50 focus:border-blue-600 block p-2.5"
+            id="link"
+            type="url"
+            value={state.link}
+            onChange={(e) =>
+              setState((prev) => ({
+                ...prev,
+                link: e.target.value,
+                product_id: "",
+              }))
+            }
+            required={required}
+          />
+        </div>
+      ) : state.type === "product" ? (
+        <div>
+          <label
+            htmlFor="product"
+            className="block mb-1 text-xs font-medium text-gray-900 capitalize"
+          >
+            Product
+          </label>
+          <select
+            id="product"
+            value={state?.product_id}
+            name="product"
+            onChange={(e) =>
+              setState((prev) => ({
+                ...prev,
+                product_id: e.target.value,
+                link: "",
+              }))
+            }
+            className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5"
+            required={required}
+          >
+            <option className="text-sm" value="">
+              select product
+            </option>
+
+            {arr.map((product) => {
+              const option = getOption(product);
+              return (
+                <option
+                  className="text-sm"
+                  value={getValue ? getValue(product) : option}
+                >
+                  {option}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+      ) : null}
+    </>
   );
 };

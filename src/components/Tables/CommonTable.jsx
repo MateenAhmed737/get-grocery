@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Actions from "../Actions";
-import { image_base_url } from "../../utils/url";
+import { Image_BaseUrl_category_images, image_base_url } from "../../utils/url";
 
 const CommonTable = ({
   template,
@@ -12,11 +12,21 @@ const CommonTable = ({
   excludeFields = [],
   dollarFields = [],
   hideFields = [],
+  linkFields = [],
+  title,
 }) => {
   const keys = Object.keys(template).filter((e) => !excludeFields.includes(e));
 
   const removeUnderscore = (str) =>
     str.replace(/^.|_./g, (match) => match.toUpperCase()).replace(/_/g, " ");
+
+  const imageBaseUrl = useMemo(() => {
+    if (title === "Categories") {
+      return Image_BaseUrl_category_images;
+    } else {
+      return image_base_url;
+    }
+  }, [props]);
 
   return (
     <>
@@ -61,10 +71,24 @@ const CommonTable = ({
                         className="px-6 py-4 text-xs text-center whitespace-nowrap md:whitespace-normal"
                       >
                         <img
-                          src={image_base_url + data[key]}
+                          src={imageBaseUrl + data[key]}
                           alt={key}
                           className="object-cover object-center h-10 mx-auto origin-center"
                         />
+                      </td>
+                    ) : linkFields.includes(key) && data[key] ? (
+                      <td
+                        key={key + data.id}
+                        className="px-6 py-4 text-xs text-center whitespace-nowrap md:whitespace-normal"
+                      >
+                        <a
+                          href={data[key]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {data[key]}
+                        </a>
                       </td>
                     ) : percentageFields.includes(key) && data[key] ? (
                       <td

@@ -5,23 +5,14 @@ import { AppContext } from "../context";
 import {
   Page404,
   Login,
-  Jobs,
-  Companies,
-  Invoices,
   EditProfile,
   ChangePassword,
   ForgotPassword,
   EmailVerification,
   AccessDenied,
-  Packages,
-  // PaymentMethods,
-  TransactionLogs,
-  Dashboard,
-  AdminOptions,
-  Help,
-  Terms,
-  WorkTypes,
+  Categories,
   SlidesManagement,
+  Category,
 } from "../pages";
 import { base_url } from "../utils/url";
 
@@ -102,9 +93,10 @@ const Router = () => {
               path="/slides-management"
               element={privateRoutes(SlidesManagement)}
             />
-            {/* <Route path="/companies" element={privateRoutes(Companies)} />
-            <Route path="/packages" element={privateRoutes(Packages)} />
-            <Route path="/jobs" element={privateRoutes(Jobs)} /> */}
+            <Route path="/categories" element={privateRoutes(Categories)} />
+            <Route path="/category/:id" element={privateRoutes(Category)} />
+            {/* <Route path="/packages" element={privateRoutes(Packages)} /> */}
+            {/* <Route path="/jobs" element={privateRoutes(Jobs)} /> */}
             {/* <Route
               path="/payment-methods"
               element={privateRoutes(PaymentMethods)}

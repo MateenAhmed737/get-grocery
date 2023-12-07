@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { VscClose } from "react-icons/vsc";
 import { getInputType } from "../../utils";
-import { DropdownField, TextArea, UploadField } from "../Fields";
+import {
+  DropdownField,
+  TextArea,
+  TypeFieldCategories,
+  UploadField,
+} from "../Fields";
 
 import Button from "../Buttons/Button";
 import toast from "react-hot-toast";
@@ -17,18 +22,21 @@ const CreateModal = ({
   dropdownFields = [],
   disabledFields = [],
   uploadFields = [],
+  inputFields = [],
   hideFields = [],
   required = true,
   neededProps,
   successCallback,
   initialState,
   token,
+  page,
 }) => {
   const [state, setState] = useState(initialState);
   const [isLoading, setIsLoading] = useState(false);
 
   // console.log("state", state);
 
+  const inputKeys = inputFields.map((e) => e.key);
   const uploadKeys = uploadFields.map((e) => e.key);
   const dropdownKeys = dropdownFields.map((e) => e.key);
 
@@ -36,30 +44,7 @@ const CreateModal = ({
   const handleInputChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-
-    if (name === "_gst" || name === "_discount") {
-      setState({
-        ...state,
-        [name]: value,
-        _total: calcTotal({ ...state, [name]: value }),
-      });
-    } else {
-      setState({ ...state, [name]: value });
-    }
-  };
-
-  const calcTotal = (state) => {
-    const gst = Number(state?._gst);
-    const discount = Number(state?._discount);
-    const price = Number(state?._package_amount || 0);
-
-    const discountedPrice = discount ? price - (price / 100) * discount : price;
-    const total = gst
-      ? discountedPrice + (discountedPrice / 100) * gst
-      : discountedPrice;
-
-    console.log("==>", gst, price, discount, total);
-    return total || "0";
+    setState({ ...state, [name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -106,6 +91,14 @@ const CreateModal = ({
       if (json.status) {
         successCallback && successCallback(json, state);
         close();
+      } else if (!json.status) {
+        toast.error(
+          json?.message ||
+            json?.error?.message ||
+            json?.error[0]?.message ||
+            "Unable to create!",
+          { duration: 2000 }
+        );
       }
     } catch (error) {
       toast.error("Unable to create!", { duration: 2000 });
@@ -175,6 +168,22 @@ const CreateModal = ({
                     keyName: elem,
                     gridCols,
                     state: state[elem],
+                    setState,
+                    disabled: disabledFields.includes(elem),
+                    required,
+                  }}
+                />
+              );
+            } else if (elem === "type" && page === "Slides Management") {
+              const index = inputKeys.indexOf(elem);
+              const data = index !== -1 ? inputFields[index] : {};
+
+              return (
+                <TypeFieldCategories
+                  {...{
+                    ...data,
+                    keyName: elem,
+                    state: state,
                     setState,
                     disabled: disabledFields.includes(elem),
                     required,

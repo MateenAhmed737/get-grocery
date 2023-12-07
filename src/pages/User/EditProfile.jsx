@@ -1,16 +1,22 @@
 import React, { useContext, useState } from "react";
 import { Button, Page } from "../../components";
 import { AppContext } from "../../context";
-import { base_url, image_base_url } from "../../utils/url";
+import { base_url } from "../../utils/url";
+import { getInputType } from "../../utils";
+import toast from "react-hot-toast";
 
 const EditProfile = () => {
   const { user, setUser } = useContext(AppContext);
   //* console.log("user", user);
-  const [image, setImage] = useState("");
+  // const [image, setImage] = useState("");
   const [state, setState] = useState(user);
   const [toggleBtn, setToggleBtn] = useState(false);
 
-  console.log("user ==>", user);
+  const keys = Object.keys(state).filter(
+    (e) => e !== "image" && e !== "status" && e !== "created_at"
+  );
+
+  console.log("state ==>", state);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setToggleBtn(true);
@@ -18,7 +24,7 @@ const EditProfile = () => {
     try {
       const url = `${base_url}/update_profile.php`;
       let formdata = new FormData();
-      Object.keys(state).forEach((key) => {
+      keys.forEach((key) => {
         formdata.append(key, state[key]);
         console.log(key, state[key]);
       });
@@ -36,12 +42,11 @@ const EditProfile = () => {
       const json = await res.json();
 
       console.log("json", json);
-      if (json.success) {
-        let data = json.success.data;
-
-        setUser(data);
-        localStorage.setItem("user", JSON.stringify(data));
-        console.log("Response =============>", data);
+      if (json.status) {
+        setUser(state);
+        localStorage.setItem("user", JSON.stringify(state));
+        toast.success(json?.message);
+        console.log("Response =============>", state);
       }
     } catch (err) {
       console.error(err);
@@ -57,7 +62,7 @@ const EditProfile = () => {
     if (key === "profile_image") {
       const file = e.target.files[0];
 
-      setImage(URL.createObjectURL(file));
+      // setImage(URL.createObjectURL(file));
       setState({ ...state, profile_image: file });
     } else {
       setState({ ...state, [key]: value });
@@ -71,7 +76,7 @@ const EditProfile = () => {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 gap-6 sm:grid-cols-2"
         >
-          <div className="col-span-2">
+          {/* <div className="col-span-2">
             <label className="block text-sm font-medium text-center text-gray-700">
               Photo
             </label>
@@ -109,46 +114,33 @@ const EditProfile = () => {
                 Change
               </button>
             </div>
-          </div>
+          </div> */}
 
-          <div className="col-span-2">
-            <label
-              htmlFor="name"
-              className="block text-xs font-medium text-gray-700"
-            >
-              Name
-            </label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="name"
-                id="name"
-                value={state.name}
-                onChange={handleChange}
-                className="p-2.5 w-full text-xs shadow-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="John Doe"
-              />
-            </div>
-          </div>
-          <div className="col-span-2">
-            <label
-              htmlFor="email"
-              className="block text-xs font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <div className="mt-1">
-              <input
-                type="tel"
-                name="email"
-                id="email"
-                value={state.email}
-                onChange={handleChange}
-                className="p-2.5 w-full text-xs shadow-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="+021 656 4848 315"
-              />
-            </div>
-          </div>
+          {keys.map(
+            (key) =>
+              key !== "id" &&
+              key !== "token" && (
+                <div className="col-span-2">
+                  <label
+                    htmlFor={key}
+                    className="block text-xs font-medium text-gray-700 capitalize"
+                  >
+                    {key.replaceAll("_", " ")}
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type={getInputType(key)}
+                      name={key}
+                      id={key}
+                      value={state[key]}
+                      onChange={handleChange}
+                      className="p-2.5 w-full text-xs shadow-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      // placeholder="John Doe"
+                    />
+                  </div>
+                </div>
+              )
+          )}
 
           <div className="col-span-2 text-right">
             <Button

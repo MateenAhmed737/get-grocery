@@ -62,7 +62,7 @@ const Account = ({ toggle, setToggle }) => {
           </div>
         )}
         <p className="flex flex-col text-xs font-medium capitalize whitespace-nowrap">
-          {user.name}
+          {`${user.first_name} ${user.last_name}`}
           <span className="text-[10px] font-normal capitalize">
             {user.role?.replaceAll("_", " ") || "Super Admin"}
           </span>

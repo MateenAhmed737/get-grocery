@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { VscClose } from "react-icons/vsc";
 import Button from "../Buttons/Button";
 import { getInputType } from "../../utils";
-import { DropdownField, TextArea, UploadField } from "../Fields";
+import {
+  DropdownField,
+  TextArea,
+  TypeFieldCategories,
+  UploadField,
+} from "../Fields";
 import toast from "react-hot-toast";
 
 const EditModal = ({
@@ -12,14 +17,18 @@ const EditModal = ({
   gridCols = 2,
   excludeFields = ["id"],
   textAreaFields = ["address"],
+  appendableFields = [],
   dropdownFields = [],
+  disabledFields = [],
   uploadFields = [],
+  inputFields = [],
   hideFields = [],
   required = false,
   neededProps,
   successCallback,
   template,
   token,
+  page,
 }) => {
   const initialState = editModal.data;
   const [state, setState] = useState(initialState);
@@ -27,6 +36,7 @@ const EditModal = ({
 
   console.log("state", state);
 
+  const inputKeys = inputFields.map((e) => e.key);
   const uploadKeys = uploadFields.map((e) => e.key);
   const dropdownKeys = dropdownFields.map((e) => e.key);
 
@@ -42,14 +52,20 @@ const EditModal = ({
 
     try {
       const formdata = new FormData();
+      const appendableKeys = appendableFields.map((e) => e.key);
       keys.forEach((item, indx) => {
         let key = neededProps.find(
           (elem) => elem?.to === item || elem === item
         );
         key = typeof key === "object" ? key.from : key?.replace(/^_/, "");
 
+        if (appendableKeys.includes(key)) {
+          const data = appendableFields?.[appendableKeys.indexOf(key)];
+          data?.appendFunc(key, state[item], formdata);
+        } else {
+          formdata.append(key, state[item]);
+        }
         console.log(key, state[item]);
-        formdata.append(key, state[item]);
       });
       formdata.append("token", token);
 
@@ -73,9 +89,10 @@ const EditModal = ({
       if (json.status) {
         successCallback && successCallback(json, state);
         close();
-      } else if (json.error) {
+      } else if (!json.status) {
         toast.error(
-          json?.error?.message ||
+          json?.message ||
+            json?.error?.message ||
             json?.error[0]?.message ||
             "Unable to update!",
           { duration: 2000 }
@@ -149,6 +166,22 @@ const EditModal = ({
                     gridCols,
                     state: state[elem],
                     setState,
+                    required,
+                  }}
+                />
+              );
+            } else if (elem === "type" && page === "Slides Management") {
+              const index = inputKeys.indexOf(elem);
+              const data = index !== -1 ? inputFields[index] : {};
+
+              return (
+                <TypeFieldCategories
+                  {...{
+                    ...data,
+                    keyName: elem,
+                    state: state,
+                    setState,
+                    disabled: disabledFields.includes(elem),
                     required,
                   }}
                 />
